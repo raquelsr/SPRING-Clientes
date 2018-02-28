@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.math.BigDecimal;
 import java.util.Calendar;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,24 +23,37 @@ public class OrderDaoIT {
 
     @Autowired
     private OrderDao orderDao;
-    
-   /* private Order order1;
+
+    private Order order1;
+
     private Order order2;
-    
-    
-    @Test
-    public void testFindAll() {
+
+    @Before
+    public void before() {
         this.order1 = new Order(Calendar.getInstance(), new BigDecimal(2));
-//        this.order2 = new Order(Calendar.getInstance(), new BigDecimal(7));
+        this.order2 = new Order(Calendar.getInstance(), new BigDecimal(7));
 
         this.orderDao.save(this.order1);
-   //     this.orderDao.save(this.order2);
+        this.orderDao.save(this.order2);
+    }
 
-        assertEquals(2, this.orderDao.findAll().size());
-    }*/
-    
     @Test
     public void testFindAll() {
-        assertEquals(1, this.orderDao.findAll().size());
+        assertEquals(2, this.orderDao.findAll().size());
+    }
+
+    @Test
+    public void testFindOne() {
+        assertEquals(this.order1, this.orderDao.findOne(3));
+    }
+
+    @Test
+    public void testFindByAmountGreaterThan() {
+        assertEquals(1, this.orderDao.findByAmountGreaterThan(new BigDecimal(3)).size());
+    }
+
+    @After
+    public void deleteAll() {
+        this.orderDao.deleteAll();
     }
 }

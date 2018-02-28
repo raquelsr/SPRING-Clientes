@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.After;
 import org.junit.Before;
 
 import es.upm.miw.entities.Customer;
@@ -33,14 +36,11 @@ public class CustomerDaoIT {
     @Before
     public void before() {
         this.customer = new Customer("Raquel", "Madrid");
-        List<Order> orderListCustomer = new ArrayList<Order>();
-        Order order1 = new Order(Calendar.getInstance(), new BigDecimal(2));
-       // Order order2 = new Order(Calendar.getInstance(), new BigDecimal(6));       
-        orderListCustomer.add(order1);
-      //  orderListCustomer.add(order2);      
-        this.customer.setOrders(orderListCustomer);
-       
         this.customer2 = new Customer("Álvaro", "Fuenlabrada");
+        Order order1 = new Order(Calendar.getInstance(), new BigDecimal(2));
+        List<Order> orderList1 = new ArrayList<Order>();
+        orderList1.add(order1);
+        this.customer.setOrders(orderList1);
 
         this.customerDao.save(this.customer);
         this.customerDao.save(this.customer2);
@@ -53,7 +53,7 @@ public class CustomerDaoIT {
 
     @Test
     public void testFindOne() {
-        assertEquals(this.customer, this.customerDao.findOne(1));
+        assertEquals(this.customer, this.customerDao.findOne(this.customer.getId()));
     }
 
     @Test
@@ -61,6 +61,29 @@ public class CustomerDaoIT {
         List<Customer> resultados = new ArrayList<Customer>();
         resultados.add(this.customer);
         assertEquals(resultados, this.customerDao.findByName("Raquel"));
+    }
+
+    @Test
+    public void testFindByAddress() {
+        assertEquals(1, this.customerDao.findByAddress("Fuenlabrada").size());
+        assertEquals(0, this.customerDao.findByAddress("Mostoles").size());
+    }
+
+    @Test
+    public void testFindOrderListIsEmpty() {
+        assertEquals(1, this.customerDao.findOrderListIsEmpty().size());
+    }
+
+    @Transactional
+    @Test
+    public void testDeleteById() {
+        this.customerDao.deleteById(this.customer2.getId());
+        assertEquals(1, this.customerDao.findAll().size());
+    }
+
+    @After
+    public void deleteAll() {
+        this.customerDao.deleteAll();
     }
 
 }
