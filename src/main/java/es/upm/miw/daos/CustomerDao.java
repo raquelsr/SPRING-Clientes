@@ -17,7 +17,7 @@ public interface CustomerDao extends JpaRepository<Customer, Integer> {
 
     @Query("select c.id from Customer c where c.orderList is empty")
     List<Customer> findOrderListIsEmpty();
-
+        
     @Modifying
     @Query(value = "delete from Customer c where c.id = ?1")
     void deleteById(int id);
